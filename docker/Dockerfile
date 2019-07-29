@@ -13,6 +13,8 @@ ARG OLD_S2I_PATH
 
 USER 0
 
+ADD ./devops.crt /tmp
+
 RUN \
     set -x ; \
     [ -z "$GRADLE_VERSION" ] && { echo "GRADLE_VERSION must be defined" ; exit 1 ; } ; \
@@ -41,7 +43,8 @@ RUN \
 	-s \
 	    $GRADLE_HOME/bin/gradle /usr/bin/gradle \
 	&& \
-    rm -f /tmp/gradle-${GRADLE_VERSION}-bin.zip
+    rm -f /tmp/gradle-${GRADLE_VERSION}-bin.zip && \
+    keytool -import -trustcacerts -keystore  $JAVA_HOME/jre/lib/security/cacerts -storepass changeit -alias devops -import -file /tmp/devops.crt -noprompt
 
 ENV \
     OLD_S2I_PATH=$OLD_S2I_PATH \
